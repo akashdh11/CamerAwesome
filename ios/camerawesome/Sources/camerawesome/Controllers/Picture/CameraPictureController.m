@@ -195,14 +195,13 @@
       cropRect = CGRectMake(y, x, newCropWidth, newCropHeight);
     }
   }
-}
 
-CGImageRef imageRef = CGImageCreateWithImageInRect([image CGImage], cropRect);
+  CGImageRef imageRef = CGImageCreateWithImageInRect([image CGImage], cropRect);
 
-UIImage *cropped = [UIImage imageWithCGImage:imageRef];
-CGImageRelease(imageRef);
+  UIImage *cropped = [UIImage imageWithCGImage:imageRef];
+  CGImageRelease(imageRef);
 
-return cropped;
+  return cropped;
 }
 
 // Helper #1: map a “known” UIDeviceOrientation → UIImageOrientation
