@@ -381,7 +381,7 @@ class CameraAwesomeX : CameraInterface, FlutterPlugin, ActivityAware {
         val outputFileOptions =
             ImageCapture.OutputFileOptions.Builder(imageFile).setMetadata(metadata).build()
 //        for (imageCapture in cameraState.imageCaptures) {
-        imageCapture.targetRotation = orientationStreamListener!!.surfaceOrientation
+        imageCapture.targetRotation = android.view.Surface.ROTATION_0
         imageCapture.takePicture(outputFileOptions,
             ContextCompat.getMainExecutor(activity!!),
             object : ImageCapture.OnImageSavedCallback {
@@ -512,7 +512,7 @@ class CameraAwesomeX : CameraInterface, FlutterPlugin, ActivityAware {
                         }
                     }
                 }
-                videoCapture.targetRotation = orientationStreamListener!!.surfaceOrientation
+                videoCapture.targetRotation = android.view.Surface.ROTATION_0
                 cameraState.recordings!!.add(videoCapture.output.prepareRecording(
                     activity!!, FileOutputOptions.Builder(File(paths[index]!!)).build()
                 ).apply { if (cameraState.enableAudioRecording && !ignoreAudio) withAudioEnabled() }
