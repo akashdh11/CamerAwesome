@@ -183,29 +183,26 @@
   double y = imageHeightDivided - newCropHeight / 2.0;
 
   CGRect cropRect;
-  if (UIDeviceOrientationIsLandscape(_orientation)) {
-    cropRect = CGRectMake(x, y, newCropWidth, newCropHeight);
+  // Always crop based on portrait because we hardcoded UIImageOrientationRight
+  if (_aspectRatioType == Ratio16_9) {
+    cropRect = CGRectMake(0, 0, image.size.height, image.size.width);
   } else {
-    if (_aspectRatioType == Ratio16_9) {
-      cropRect = CGRectMake(0, 0, image.size.height, image.size.width);
+    if (_aspectRatioType == Ratio4_3) {
+      double localX = imageHeightDivided - (imageHeightDivided / _aspectRatio);
+      cropRect = CGRectMake(localX, 0, image.size.height / _aspectRatio,
+                            image.size.width);
     } else {
-      if (_aspectRatioType == Ratio4_3) {
-        double localX =
-            imageHeightDivided - (imageHeightDivided / _aspectRatio);
-        cropRect = CGRectMake(localX, 0, image.size.height / _aspectRatio,
-                              image.size.width);
-      } else {
-        cropRect = CGRectMake(y, x, newCropWidth, newCropHeight);
-      }
+      cropRect = CGRectMake(y, x, newCropWidth, newCropHeight);
     }
   }
+}
 
-  CGImageRef imageRef = CGImageCreateWithImageInRect([image CGImage], cropRect);
+CGImageRef imageRef = CGImageCreateWithImageInRect([image CGImage], cropRect);
 
-  UIImage *cropped = [UIImage imageWithCGImage:imageRef];
-  CGImageRelease(imageRef);
+UIImage *cropped = [UIImage imageWithCGImage:imageRef];
+CGImageRelease(imageRef);
 
-  return cropped;
+return cropped;
 }
 
 // Helper #1: map a “known” UIDeviceOrientation → UIImageOrientation
