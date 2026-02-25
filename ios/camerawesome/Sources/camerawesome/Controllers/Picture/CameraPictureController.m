@@ -158,33 +158,43 @@
 }
 
 - (UIImage *)imageByCroppingImage:(UIImage *)image toSize:(CGSize)size {
-  // Hardcode completely to iOS screen dimensions
-  CGSize screenSize = UIScreen.mainScreen.bounds.size;
-  // Ensure we have the portrait aspect ratio
-  double screenWidth = MIN(screenSize.width, screenSize.height);
-  double screenHeight = MAX(screenSize.width, screenSize.height);
-  double screenAspectRatio = screenWidth / screenHeight;
+  double newCropWidth, newCropHeight;
 
-  // Calculate the crop dimensions necessary to match the screen's aspect ratio
-  // Since we hardcoded the portrait up orientation, the raw image data is
-  // oriented with height taking the long axis (image.size.height >
-  // image.size.width generally)
-
-  double cropWidth = image.size.width;
-  double cropHeight = image.size.width / screenAspectRatio;
-
-  if (cropHeight > image.size.height) {
-    cropHeight = image.size.height;
-    cropWidth = image.size.height * screenAspectRatio;
+  if (image.size.width < image.size.height) {
+    if (image.size.width < size.width) {
+      newCropWidth = size.width;
+    } else {
+      newCropWidth = image.size.width;
+    }
+    newCropHeight = (newCropWidth * size.height) / size.width;
+  } else {
+    if (image.size.height < size.height) {
+      newCropHeight = size.height;
+    } else {
+      newCropHeight = image.size.height;
+    }
+    newCropWidth = (newCropHeight * size.width) / size.height;
   }
 
-  double finalX = (image.size.width - cropWidth) / 2.0;
-  double finalY = (image.size.height - cropHeight) / 2.0;
+  double imageHeightDivided = image.size.height / 2.0;
+  double imageWidthDivided = image.size.width / 2.0;
 
-  // Since orientation is fixed to right (portrait), we might need to swap X/Y
-  // depending on how CGImage handles coordinates, but since we are replacing
-  // the exact cropRect:
-  CGRect cropRect = CGRectMake(finalX, finalY, cropWidth, cropHeight);
+  double x = imageWidthDivided - newCropWidth / 2.0;
+  double y = imageHeightDivided - newCropHeight / 2.0;
+
+  CGRect cropRect;
+  // Always crop based on portrait because we hardcoded UIImageOrientationRight
+  if (_aspectRatioType == Ratio16_9) {
+    cropRect = CGRectMake(0, 0, image.size.height, image.size.width);
+  } else {
+    if (_aspectRatioType == Ratio4_3) {
+      double localX = imageHeightDivided - (imageHeightDivided / _aspectRatio);
+      cropRect = CGRectMake(localX, 0, image.size.height / _aspectRatio,
+                            image.size.width);
+    } else {
+      cropRect = CGRectMake(y, x, newCropWidth, newCropHeight);
+    }
+  }
 
   CGImageRef imageRef = CGImageCreateWithImageInRect([image CGImage], cropRect);
 
